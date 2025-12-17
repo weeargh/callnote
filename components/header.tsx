@@ -16,7 +16,7 @@ export async function Header() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
               <Video className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-semibold text-foreground">Mekari Call</span>
+            <span className="text-xl font-semibold text-foreground">Mekari Callnote</span>
           </Link>
 
           <div className="flex items-center gap-4">

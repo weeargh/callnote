@@ -89,7 +89,7 @@ export default function SignupPage() {
                     </div>
                     <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
                     <CardDescription>
-                        Get started with Mekari Call Dashboard
+                        Get started with Mekari Callnote
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

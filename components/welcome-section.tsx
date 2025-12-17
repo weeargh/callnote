@@ -22,7 +22,7 @@ export function WelcomeSection() {
     <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground text-balance">
-          {greeting}! Welcome to Mekari Call.
+          {greeting}! Welcome to Mekari Callnote.
         </h1>
         <p className="mt-2 text-base text-muted-foreground">Your recent recordings and meeting intelligence</p>
       </div>

@@ -7,7 +7,7 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Mekari Call - Meeting Intelligence",
+  title: "Mekari Callnote - Meeting Intelligence",
   description: "Lightweight B2B meeting intelligence for Southeast Asia",
   generator: "v0.app",
   icons: {

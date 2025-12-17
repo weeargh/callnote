@@ -1,10 +1,10 @@
-This is the **Master Design Document** for **Mekari Call (v2.0)**. It synthesizes your new UI requirements, the MeetingBaas architecture, and the "Indonesian B2B" context into a single executable blueprint.
+This is the **Master Design Document** for **Mekari Callnote (v2.0)**. It synthesizes your new UI requirements, the MeetingBaas architecture, and the "Indonesian B2B" context into a single executable blueprint.
 
 ---
 
 # **1. Product Specification**
 
-**Product Name:** Mekari Call
+**Product Name:** Mekari Callnote
 **Version:** 2.0 (Intelligence Platform)
 **Target Audience:** Indonesian B2B Professionals (Managers, Sales, Product).
 **Core Value:** Turns mixed-language meetings (Indo/Eng) into structured data (Action Items, Decisions, Timelines).
@@ -194,7 +194,7 @@ Use this payload when spawning the bot to ensure you get the data needed for the
 ```json
 {
   "meeting_url": "...",
-  "bot_name": "Mekari Call",
+  "bot_name": "Mekari Callnote",
   "speech_to_text": {
     "provider": "gladia",
     "api_key": "YOUR_GLADIA_KEY", 

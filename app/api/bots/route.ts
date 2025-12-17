@@ -7,7 +7,7 @@ const MEETINGBAAS_API_URL = 'https://api.meetingbaas.com/v2/bots'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { meeting_url, bot_name = 'Mekari Call', title } = body
+    const { meeting_url, bot_name = 'Mekari Callnote', title } = body
 
     if (!meeting_url) {
       return NextResponse.json({ error: 'meeting_url is required' }, { status: 400 })
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       meeting_url,
       bot_name,
       recording_mode: 'speaker_view',
-      entry_message: 'Mekari Call is joining to record this meeting.',
+      entry_message: 'Mekari Callnote is joining to record this meeting.',
       reserved: false,
       automatic_leave: {
         waiting_room_timeout: 600,

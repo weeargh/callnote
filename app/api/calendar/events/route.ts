@@ -27,7 +27,7 @@ export async function GET(request: Request) {
 
         if (!calendars || calendars.length === 0) {
             console.log('⚠️  No calendars found in MeetingBaas account')
-            return NextResponse.json({ events: [] })
+            return NextResponse.json({ error: 'No calendars connected' }, { status: 404 })
         }
 
         const calendarId = calendars[0].id

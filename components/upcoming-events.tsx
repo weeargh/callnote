@@ -27,13 +27,12 @@ export function UpcomingEvents() {
         setError(null)
         try {
             const res = await fetch('/api/calendar/events')
-            if (!res.ok) {
-                throw new Error('Failed to fetch events')
-            }
             const data = await res.json()
-            if (data.error) {
-                throw new Error(data.error)
+
+            if (!res.ok || data.error) {
+                throw new Error(data.error || 'Failed to fetch events')
             }
+
             setEvents(data.events || [])
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load calendar')

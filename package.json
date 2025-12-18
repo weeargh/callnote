@@ -6,7 +6,11 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "next start",
+    "test": "npx tsx scripts/test-unit-calendar.ts && npx tsx scripts/test-api-integration.ts",
+    "test:unit": "npx tsx scripts/test-unit-calendar.ts",
+    "test:api": "npx tsx scripts/test-api-integration.ts",
+    "test:e2e": "npx tsx scripts/test-usecases.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

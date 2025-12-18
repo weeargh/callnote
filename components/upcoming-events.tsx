@@ -61,9 +61,52 @@ export function UpcomingEvents() {
             <CardHeader className="px-0 pt-0">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-xl">Upcoming Events</CardTitle>
-                    <Button variant="ghost" size="icon" onClick={fetchEvents} disabled={loading}>
-                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs gap-1.5 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                            onClick={async () => {
+                                const confirm = window.confirm('This will schedule bots for ALL visible upcoming meetings. Continue?');
+                                if (!confirm) return;
+
+                                setLoading(true);
+                                try {
+                                    // Filter events that need scheduling
+                                    const eventsToSchedule = events.filter(e => !e.bot_scheduled);
+
+                                    // Process sequentially to avoid rate limits
+                                    for (const event of eventsToSchedule) {
+                                        if (!event.meeting_url && !event.hangoutLink && !event.location) continue;
+
+                                        await fetch('/api/calendar/events/bot', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                meeting_url: event.meeting_url || event.hangoutLink || event.location,
+                                                bot_name: 'Mekari Callnote',
+                                                title: event.title || event.summary,
+                                                start_time: event.start_time || event.start?.dateTime
+                                            })
+                                        });
+                                    }
+                                    // Refresh all
+                                    fetchEvents();
+                                } catch (err) {
+                                    console.error('Batch schedule failed', err);
+                                } finally {
+                                    setLoading(false);
+                                }
+                            }}
+                            disabled={loading || events.length === 0}
+                        >
+                            <Video className="h-3.5 w-3.5" />
+                            Record All
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={fetchEvents} disabled={loading}>
+                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                        </Button>
+                    </div>
                 </div>
                 <CardDescription>Next 3 days from your connected calendar</CardDescription>
             </CardHeader>

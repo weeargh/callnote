@@ -64,13 +64,26 @@ export async function POST(request: Request) {
                     recording_mode: 'speaker_view',
                     entry_message: 'Mekari Callnote is joining to record this meeting.',
                     all_occurrences: true,
-                    // Enable transcription with speaker diarization
+
+                    // Prevent duplicate bots
+                    deduplication_id: `calendar-${series_id}`,
+                    allow_multiple_bots: false,
+
+                    // Transcription - Maximize Gladia power
                     transcription_enabled: true,
                     transcription_config: {
                         provider: 'gladia',
-                        diarization: true
+                        diarization: true,  // Speaker separation
                     },
-                    // Webhook URL for receiving bot events
+
+                    // Auto-leave settings to prevent stuck bots
+                    automatic_leave: {
+                        waiting_room_timeout: 300,   // 5 min waiting room
+                        noone_joined_timeout: 300,   // 5 min no one joined
+                        everyone_left_timeout: 60,   // 1 min after everyone leaves
+                    },
+
+                    // Webhook for bot status updates
                     webhook_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://callnote.vercel.app'}/api/webhooks/meetingbaas`
                 }
 

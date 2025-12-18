@@ -26,6 +26,7 @@ export async function POST(request: Request) {
                 meeting_url,
                 bot_name: bot_name || 'Mekari Callnote',
                 title: title || 'Calendar Meeting',
+                start_time, // Include for future scheduling
             }),
         })
 

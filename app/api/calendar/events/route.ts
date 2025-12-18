@@ -43,7 +43,11 @@ export async function GET(request: Request) {
         const eventsUrl = new URL(`https://api.meetingbaas.com/v2/calendars/${calendarId}/events`)
         eventsUrl.searchParams.set('start_time', now.toISOString())
         eventsUrl.searchParams.set('end_time', endDate.toISOString())
-        eventsUrl.searchParams.set('limit', '10')
+        // Try alternate parameter names just in case
+        eventsUrl.searchParams.set('start_date_gte', now.toISOString())
+        eventsUrl.searchParams.set('start_date_lte', endDate.toISOString())
+        eventsUrl.searchParams.set('limit', '50')
+
 
         console.log('🔗 Events URL:', eventsUrl.toString())
 
@@ -58,10 +62,19 @@ export async function GET(request: Request) {
         }
 
         const eventsData = await eventsRes.json()
-        console.log('📊 Events response:', JSON.stringify(eventsData, null, 2))
+        // console.log('📊 Events response:', JSON.stringify(eventsData, null, 2))
 
-        const events = eventsData.data || eventsData
+        let events = eventsData.data || eventsData || []
         console.log(`✅ Found ${events?.length || 0} events`)
+
+        // Sort events by start time ascending (since API returns distinct order sometimes)
+        if (Array.isArray(events)) {
+            events.sort((a: any, b: any) => {
+                const dateA = new Date(a.start_time || a.start?.dateTime || a.start?.date || 0)
+                const dateB = new Date(b.start_time || b.start?.dateTime || b.start?.date || 0)
+                return dateA.getTime() - dateB.getTime()
+            })
+        }
 
         return NextResponse.json({ events })
 

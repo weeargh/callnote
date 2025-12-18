@@ -61,52 +61,9 @@ export function UpcomingEvents() {
             <CardHeader className="px-0 pt-0">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-xl">Upcoming Events</CardTitle>
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 text-xs gap-1.5 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
-                            onClick={async () => {
-                                const confirm = window.confirm('This will schedule bots for ALL visible upcoming meetings. Continue?');
-                                if (!confirm) return;
-
-                                setLoading(true);
-                                try {
-                                    // Filter events that need scheduling
-                                    const eventsToSchedule = events.filter(e => !e.bot_scheduled);
-
-                                    // Process sequentially to avoid rate limits
-                                    for (const event of eventsToSchedule) {
-                                        if (!event.meeting_url && !event.hangoutLink && !event.location) continue;
-
-                                        await fetch('/api/calendar/events/bot', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({
-                                                meeting_url: event.meeting_url || event.hangoutLink || event.location,
-                                                bot_name: 'Mekari Callnote',
-                                                title: event.title || event.summary,
-                                                start_time: event.start_time || event.start?.dateTime
-                                            })
-                                        });
-                                    }
-                                    // Refresh all
-                                    fetchEvents();
-                                } catch (err) {
-                                    console.error('Batch schedule failed', err);
-                                } finally {
-                                    setLoading(false);
-                                }
-                            }}
-                            disabled={loading || events.length === 0}
-                        >
-                            <Video className="h-3.5 w-3.5" />
-                            Record All
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={fetchEvents} disabled={loading}>
-                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                        </Button>
-                    </div>
+                    <Button variant="ghost" size="icon" onClick={fetchEvents} disabled={loading}>
+                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    </Button>
                 </div>
                 <CardDescription>Next 3 days from your connected calendar</CardDescription>
             </CardHeader>
@@ -193,63 +150,15 @@ export function UpcomingEvents() {
                                             )}
                                         </div>
                                         {meetingLink && (
-                                            <div className="pt-2 flex items-center justify-between">
+                                            <div className="pt-2 flex items-center gap-3">
                                                 <a href={meetingLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700">
                                                     <Video className="h-3 w-3" /> Join
                                                 </a>
-
-                                                <Button
-                                                    size="sm"
-                                                    variant={event.bot_scheduled ? "secondary" : "default"}
-                                                    className={`h-7 px-3 text-xs ${event.bot_scheduled ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-indigo-600 hover:bg-indigo-700"}`}
-                                                    onClick={async (e) => {
-                                                        e.stopPropagation();
-                                                        const btn = e.currentTarget;
-                                                        const originalHTML = btn.innerHTML;
-                                                        btn.innerText = '...';
-                                                        btn.disabled = true;
-
-                                                        try {
-                                                            const res = await fetch('/api/calendar/events/bot', {
-                                                                method: 'POST',
-                                                                headers: { 'Content-Type': 'application/json' },
-                                                                body: JSON.stringify({
-                                                                    meeting_url: event.meeting_url || event.hangoutLink || event.location, // Prioritize valid URL
-                                                                    bot_name: 'Mekari Callnote',
-                                                                    title: event.title || event.summary,
-                                                                    start_time: event.start_time || event.start?.dateTime
-                                                                })
-                                                            });
-
-                                                            if (res.ok) {
-                                                                fetchEvents(); // Refresh to update 'bot_scheduled' if API supported it, but mainly to show success
-                                                                // Since we don't persist 'bot_scheduled' on our end for calendar events easily without a DB table, 
-                                                                // we'll just toggle the UI locally for now or rely on fetchEvents if the source updates.
-                                                                // The API response might not update 'bot_scheduled' in Google Calendar immediately.
-                                                                // So visual feedback is key.
-                                                                btn.innerHTML = 'Sent';
-                                                                setTimeout(() => {
-                                                                    btn.innerHTML = originalHTML; // Reset or keep as 'Sent'? 
-                                                                    // Better to keep visual indicator if we could.
-                                                                    // For now, let's keep it simple.
-                                                                    btn.disabled = false;
-                                                                }, 2000);
-                                                            } else {
-                                                                btn.innerText = 'Failed';
-                                                                setTimeout(() => {
-                                                                    btn.innerHTML = originalHTML;
-                                                                    btn.disabled = false;
-                                                                }, 2000);
-                                                            }
-                                                        } catch (err) {
-                                                            console.error('Join failed', err);
-                                                            btn.innerText = 'Error';
-                                                        }
-                                                    }}
-                                                >
-                                                    <Video className="h-3 w-3 mr-1.5" />
-                                                    Record This
-                                                </Button>
+                                                {event.bot_scheduled && (
+                                                    <span className="inline-flex items-center gap-1 text-xs text-green-600">
+                                                        <CheckCircle2 className="h-3 w-3" /> Auto-record enabled
+                                                    </span>
+                                                )}
                                             </div>
                                         )}
                                     </div>

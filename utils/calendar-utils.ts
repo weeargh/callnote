@@ -17,6 +17,7 @@ export interface CalendarEvent {
     start_time?: string
     end_time?: string
     meeting_url?: string
+    bot_scheduled?: boolean // MeetingBaas v2 field
 }
 
 /**

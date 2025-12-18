@@ -62,7 +62,7 @@ export async function GET(request: Request) {
                 'x-meeting-baas-api-key': MEETINGBAAS_API_KEY!,
             },
             body: JSON.stringify({
-                provider: 'google',
+                calendar_platform: 'google',
                 oauth_client_id: process.env.GOOGLE_OAUTH_CLIENT_ID!,
                 oauth_client_secret: process.env.GOOGLE_OAUTH_CLIENT_SECRET!,
                 oauth_refresh_token: tokens.refresh_token,
@@ -95,7 +95,7 @@ export async function GET(request: Request) {
                 'x-meeting-baas-api-key': MEETINGBAAS_API_KEY!,
             },
             body: JSON.stringify({
-                provider: 'google',
+                calendar_platform: 'google',
                 oauth_client_id: process.env.GOOGLE_OAUTH_CLIENT_ID!,
                 oauth_client_secret: process.env.GOOGLE_OAUTH_CLIENT_SECRET!,
                 oauth_refresh_token: tokens.refresh_token,

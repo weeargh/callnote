@@ -167,11 +167,19 @@ export function UpcomingEvents() {
                                         <span className="text-xl font-bold">{dateObj.getDate()}</span>
                                     </div>
                                     <div className="flex-1 space-y-1">
-                                        <div className="flex justify-between items-start">
+                                        <div className="flex justify-between items-start gap-2">
                                             <h4 className="font-semibold text-gray-900 line-clamp-1">{title}</h4>
-                                            <Badge variant="secondary" className="text-xs font-normal">
-                                                {hasTime ? formatTime(startDate) : 'All Day'}
-                                            </Badge>
+                                            <div className="flex items-center gap-1.5 shrink-0">
+                                                {/* Bot Status Indicator */}
+                                                {event.bot_scheduled && (
+                                                    <span className="inline-flex items-center gap-1 text-xs text-green-600" title="Bot scheduled">
+                                                        🤖
+                                                    </span>
+                                                )}
+                                                <Badge variant="secondary" className="text-xs font-normal">
+                                                    {hasTime ? formatTime(startDate) : 'All Day'}
+                                                </Badge>
+                                            </div>
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-gray-500">
                                             <span>{getDayLabel(startDate)}</span>

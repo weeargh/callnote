@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Share2, Download, ChevronDown, ArrowLeft, Loader2, RefreshCw } from "lucide-react"
+import { Share2, Download, ChevronDown, ArrowLeft, Loader2, RefreshCw, Copy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { MediaPlayer } from "@/components/media-player"
@@ -205,10 +205,26 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
             <div className="grid grid-cols-2 gap-4">
               {/* Summary Card */}
               <div className="p-5 rounded-xl border border-gray-200 bg-white shadow-sm space-y-3">
-                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <span className="w-1 h-5 bg-indigo-500 rounded-full" />
-                  AI Summary
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <span className="w-1 h-5 bg-indigo-500 rounded-full" />
+                    AI Summary
+                  </h3>
+                  {meeting!.summary_overview && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2 text-gray-400 hover:text-gray-600"
+                      onClick={() => {
+                        navigator.clipboard.writeText(meeting!.summary_overview || '')
+                        // Visual feedback would go here
+                      }}
+                      title="Copy to clipboard"
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
                 <div className="prose-sm text-gray-600 leading-relaxed">
                   {meeting!.summary_overview ? (
                     <p>{meeting!.summary_overview}</p>

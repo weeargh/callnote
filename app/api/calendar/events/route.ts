@@ -30,7 +30,7 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'No calendars connected' }, { status: 404 })
         }
 
-        const calendarId = calendars[0].id
+        const calendarId = calendars[0].calendar_id || calendars[0].id
         console.log('✅ Using calendar ID:', calendarId)
 
         // 2. Fetch Events for next 3 days

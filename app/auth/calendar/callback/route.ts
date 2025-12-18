@@ -102,7 +102,7 @@ export async function GET(request: Request) {
         }
 
         const { data: calendarConnection } = await createCalendarResponse.json()
-        console.log('✅ Calendar connected! ID:', calendarConnection.id)
+        console.log('✅ Calendar connected! ID:', calendarConnection.calendar_id || calendarConnection.id)
 
         // Redirect back to dashboard with success
         return NextResponse.redirect(`${origin}/?calendar_connected=true`)

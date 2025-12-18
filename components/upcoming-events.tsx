@@ -41,7 +41,21 @@ export function UpcomingEvents() {
                 throw new Error(data.error || 'Failed to fetch events')
             }
 
-            setEvents(data.events || [])
+            // Filter for next 3 days locally to be safe
+            const allEvents = data.events || []
+            const now = new Date()
+            const threeDaysFromNow = new Date()
+            threeDaysFromNow.setDate(now.getDate() + 3)
+            threeDaysFromNow.setHours(23, 59, 59, 999) // End of that day
+
+            const filteredEvents = allEvents.filter((event: CalendarEvent) => {
+                const startDateStr = event.start_time || event.start?.dateTime || event.start?.date
+                if (!startDateStr) return false
+                const eventDate = new Date(startDateStr)
+                return eventDate >= now && eventDate <= threeDaysFromNow
+            })
+
+            setEvents(filteredEvents)
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load calendar')
         } finally {

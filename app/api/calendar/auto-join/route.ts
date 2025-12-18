@@ -64,6 +64,11 @@ export async function POST(request: Request) {
                     recording_mode: 'speaker_view',
                     entry_message: 'Mekari Callnote is joining to record this meeting.',
                     all_occurrences: true,
+                    // Enable transcription with speaker diarization
+                    transcription_config: {
+                        provider: 'gladia',
+                        diarization: true
+                    }
                 }
 
                 const res = await fetch(createBotUrl, {

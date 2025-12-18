@@ -59,10 +59,7 @@ export async function POST(request: Request) {
         await handleBotError(event.data)
         break
 
-      case 'event.added':
-      case 'event.updated':
-        await handleCalendarEventAdded(event.data)
-        break
+      // Note: event.added/event.updated removed - using native createCalendarBot API instead
 
       default:
         console.log('Unhandled webhook event:', event.event)
@@ -72,52 +69,6 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error processing webhook:', error)
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
-  }
-}
-
-async function handleCalendarEventAdded(data: any) {
-  try {
-    console.log('📅 Calendar Event Payload:', data.summary || data.title)
-
-    // Extract meeting URL and Time
-    const meetingUrl = data.meeting_url || data.hangoutLink || data.location
-    // MeetingBaas webhook payload usually has 'start' object
-    const startTime = data.start?.dateTime || data.start_time
-
-    if (!meetingUrl) {
-      console.log('⚠️ No meeting URL found in event, skipping auto-join.')
-      return
-    }
-
-    // For updates, we might want to check if it's already scheduled?
-    // Our /api/bots route handles deduplication via `deduplication_id: meeting_url`.
-    // So safe to retry.
-
-    console.log('🤖 Auto-Scheduling Bot for:', meetingUrl, 'at', startTime)
-
-    // Call our internal API to schedule the bot
-    // We use the internal API to leverage the standardized logic (deduplication, config, etc)
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/bots`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        meeting_url: meetingUrl,
-        bot_name: 'Mekari Callnote (Auto)',
-        title: data.summary || data.title || 'Auto-Joined Meeting',
-        start_time: startTime
-      })
-    })
-
-    if (res.ok) {
-      console.log('✅ Bot successfully scheduled via Auto-Join webhook')
-    } else {
-      const err = await res.text()
-      console.error('❌ Failed to schedule auto-join bot:', err)
-    }
-
-  } catch (e) {
-    console.error('Error in handleCalendarEventAdded:', e)
   }
 }
 

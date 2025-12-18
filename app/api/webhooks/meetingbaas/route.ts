@@ -30,35 +30,35 @@ interface TranscriptSegment {
 export async function POST(request: Request) {
   try {
     const event: MeetingBaasWebhookEvent = await request.json()
-    
+
     console.log('Received MeetingBaas webhook:', event.event, event.data.bot_id)
 
     switch (event.event) {
       case 'bot.joining':
         await handleBotJoining(event.data)
         break
-      
+
       case 'bot.in_waiting_room':
         await handleBotWaiting(event.data)
         break
-      
+
       case 'bot.in_call':
         await handleBotInCall(event.data)
         break
-      
+
       case 'bot.recording':
         await handleBotRecording(event.data)
         break
-      
+
       case 'bot.done':
       case 'bot.history_available':
         await handleBotDone(event.data)
         break
-      
+
       case 'bot.error':
         await handleBotError(event.data)
         break
-      
+
       default:
         console.log('Unhandled webhook event:', event.event)
     }
@@ -101,7 +101,7 @@ async function handleBotWaiting(data: MeetingBaasWebhookEvent['data']) {
 async function handleBotInCall(data: MeetingBaasWebhookEvent['data']) {
   const { error } = await supabase
     .from('meetings')
-    .update({ 
+    .update({
       status: 'recording',
       started_at: new Date().toISOString(),
     })
@@ -128,7 +128,7 @@ async function handleBotDone(data: MeetingBaasWebhookEvent['data']) {
   if (data.duration_seconds && data.duration_seconds < 60) {
     const { error } = await supabase
       .from('meetings')
-      .update({ 
+      .update({
         status: 'failed',
         duration_seconds: data.duration_seconds,
       })
@@ -144,7 +144,7 @@ async function handleBotDone(data: MeetingBaasWebhookEvent['data']) {
   // Process transcript into our format
   let transcriptJson = null
   let transcriptFull = ''
-  
+
   if (data.transcript && Array.isArray(data.transcript)) {
     transcriptJson = data.transcript.map((segment: TranscriptSegment) => ({
       time: segment.start,
@@ -152,7 +152,7 @@ async function handleBotDone(data: MeetingBaasWebhookEvent['data']) {
       speaker: segment.speaker,
       text: segment.words.map((w: { word: string }) => w.word).join(' '),
     }))
-    
+
     transcriptFull = transcriptJson.map(
       (entry: { speaker: string; text: string }) => `${entry.speaker}: ${entry.text}`
     ).join('\n')
@@ -175,17 +175,13 @@ async function handleBotDone(data: MeetingBaasWebhookEvent['data']) {
     return
   }
 
-  // Trigger intelligence processing
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    await fetch(`${baseUrl}/api/process-intelligence`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bot_id: data.bot_id }),
-    })
-  } catch (error) {
-    console.error('Error triggering intelligence processing:', error)
-  }
+  // Trigger intelligence processing (Fire and forget to avoid webhook timeout)
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  fetch(`${baseUrl}/api/process-intelligence`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bot_id: data.bot_id }),
+  }).catch(err => console.error('Error triggering intelligence processing:', err))
 }
 
 async function handleBotError(data: MeetingBaasWebhookEvent['data']) {

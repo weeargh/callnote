@@ -47,6 +47,23 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
     }
   }, [meeting])
 
+  // Polling for real-time updates when recording or processing
+  useEffect(() => {
+    if (!meeting || (meeting.status !== 'recording' && meeting.status !== 'processing')) return
+
+    const interval = setInterval(() => {
+      // Silent fetch
+      fetch(`/api/meetings/${meetingId}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) setMeeting(data)
+        })
+        .catch(console.error)
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [meeting, meetingId])
+
   const handleSync = async () => {
     setLoading(true)
     try {

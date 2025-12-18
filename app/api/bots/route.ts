@@ -49,6 +49,7 @@ export async function POST(request: Request) {
     requestBody.transcription_enabled = true
     requestBody.transcription_config = {
       provider: 'gladia',
+      diarization: true, // Enable speaker separation
     }
 
     // Only add BYOK key if explicitly configured AND plan supports it.

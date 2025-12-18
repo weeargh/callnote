@@ -8,13 +8,21 @@ import { Button } from "@/components/ui/button"
 import { ConnectCalendarButton } from "@/components/connect-calendar-button"
 
 interface CalendarEvent {
+    // Google Calendar / Standard Structure
     id: string
-    summary: string
+    summary?: string
     description?: string
     start?: { dateTime?: string; date?: string; timeZone?: string }
     end?: { dateTime?: string; date?: string; timeZone?: string }
     location?: string
     hangoutLink?: string
+
+    // MeetingBaas Structure
+    event_id?: string
+    title?: string
+    start_time?: string
+    end_time?: string
+    meeting_url?: string
 }
 
 export function UpcomingEvents() {
@@ -104,25 +112,34 @@ export function UpcomingEvents() {
                 ) : (
                     <div className="space-y-4">
                         {events.map((event, i) => {
-                            // Safe date parsing
-                            const startDate = event.start?.dateTime || event.start?.date
+                            // Normalize event data
+                            const startDate = event.start_time || event.start?.dateTime || event.start?.date
+                            const title = event.title || event.summary || 'Untitled Event'
+                            const meetingLink = event.meeting_url || event.hangoutLink
+                            const eventId = event.event_id || event.id || i
+
                             if (!startDate) return null // Skip invalid events
 
                             // Ensure we have a valid date object
                             const dateObj = new Date(startDate)
                             if (isNaN(dateObj.getTime())) return null
 
+                            // Determine if specific time (has T and not full day)
+                            // If start_time or start.dateTime is present, we assume it has time unless explicitly told otherwise.
+                            // Simple check: if input string length > 10, typically ISO has time.
+                            const hasTime = startDate.includes('T') || startDate.length > 10;
+
                             return (
-                                <div key={event.id || i} className="flex gap-4 p-4 rounded-xl border border-gray-100 bg-white hover:border-indigo-200 transition-colors shadow-sm">
+                                <div key={eventId} className="flex gap-4 p-4 rounded-xl border border-gray-100 bg-white hover:border-indigo-200 transition-colors shadow-sm">
                                     <div className="flex flex-col items-center justify-center bg-indigo-50 text-indigo-700 h-14 w-14 rounded-lg shrink-0">
                                         <span className="text-xs font-bold uppercase">{dateObj.toLocaleDateString([], { month: 'short' })}</span>
                                         <span className="text-xl font-bold">{dateObj.getDate()}</span>
                                     </div>
                                     <div className="flex-1 space-y-1">
                                         <div className="flex justify-between items-start">
-                                            <h4 className="font-semibold text-gray-900 line-clamp-1">{event.summary || 'Untitled Event'}</h4>
+                                            <h4 className="font-semibold text-gray-900 line-clamp-1">{title}</h4>
                                             <Badge variant="secondary" className="text-xs font-normal">
-                                                {event.start?.dateTime ? formatTime(event.start.dateTime) : 'All Day'}
+                                                {hasTime ? formatTime(startDate) : 'All Day'}
                                             </Badge>
                                         </div>
                                         <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -136,9 +153,9 @@ export function UpcomingEvents() {
                                                 </>
                                             )}
                                         </div>
-                                        {event.hangoutLink && (
+                                        {meetingLink && (
                                             <div className="pt-2">
-                                                <a href={event.hangoutLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700">
+                                                <a href={meetingLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700">
                                                     <Video className="h-3 w-3" /> Join Meeting
                                                 </a>
                                             </div>

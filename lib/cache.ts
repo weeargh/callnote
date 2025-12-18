@@ -4,8 +4,8 @@
  */
 
 const CACHE_PREFIX = 'callnote_cache_'
-const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
-const MAX_CACHED_ITEMS = 10
+const CACHE_TTL_MS = 30 * 60 * 1000 // 30 minutes - no expiry until manual sync
+const MAX_CACHED_ITEMS = 20
 
 interface CacheEntry<T> {
     data: T

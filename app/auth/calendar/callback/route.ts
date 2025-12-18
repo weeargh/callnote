@@ -62,6 +62,7 @@ export async function GET(request: Request) {
                 'x-meeting-baas-api-key': MEETINGBAAS_API_KEY!,
             },
             body: JSON.stringify({
+                provider: 'google',
                 oauth_client_id: process.env.GOOGLE_OAUTH_CLIENT_ID!,
                 oauth_client_secret: process.env.GOOGLE_OAUTH_CLIENT_SECRET!,
                 oauth_refresh_token: tokens.refresh_token,
@@ -70,8 +71,8 @@ export async function GET(request: Request) {
 
         if (!listRawResponse.ok) {
             const errorText = await listRawResponse.text()
-            console.error('Failed to list calendars:', errorText)
-            throw new Error('Failed to list calendars')
+            console.error('Failed to list calendars:', listRawResponse.status, errorText)
+            throw new Error(`Failed to list calendars: ${errorText}`)
         }
 
         const { data: calendars } = await listRawResponse.json()
@@ -94,6 +95,7 @@ export async function GET(request: Request) {
                 'x-meeting-baas-api-key': MEETINGBAAS_API_KEY!,
             },
             body: JSON.stringify({
+                provider: 'google',
                 oauth_client_id: process.env.GOOGLE_OAUTH_CLIENT_ID!,
                 oauth_client_secret: process.env.GOOGLE_OAUTH_CLIENT_SECRET!,
                 oauth_refresh_token: tokens.refresh_token,

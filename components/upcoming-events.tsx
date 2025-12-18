@@ -1,45 +1,26 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { Calendar, MapPin, Video, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ConnectCalendarButton } from "@/components/connect-calendar-button"
+import { useCalendarEvents } from '@/hooks/use-calendar-events'
 
-import { filterEventsNextNDays, sortEventsAscending, CalendarEvent } from '@/utils/calendar-utils'
+import { filterEventsNextNDays, sortEventsAscending } from '@/utils/calendar-utils'
 
 export function UpcomingEvents() {
-    const [events, setEvents] = useState<CalendarEvent[]>([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
+    // Use SWR hook for cached data fetching
+    const { events: rawEvents, isLoading: loading, isError, mutate } = useCalendarEvents()
 
-    const fetchEvents = async () => {
-        setLoading(true)
-        setError(null)
-        try {
-            const res = await fetch(`/api/calendar/events?t=${new Date().getTime()}`)
-            const data = await res.json()
+    // Apply filtering and sorting
+    const events = sortEventsAscending(filterEventsNextNDays(rawEvents, 3))
+    const error = isError ? 'Failed to load calendar' : null
 
-            if (!res.ok || data.error) {
-                throw new Error(data.error || 'Failed to fetch events')
-            }
-
-            // Filter logic moved to utility for better testability and maintainability
-            const allEvents = data.events || []
-            const filteredEvents = sortEventsAscending(filterEventsNextNDays(allEvents, 3))
-
-            setEvents(filteredEvents)
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load calendar')
-        } finally {
-            setLoading(false)
-        }
+    // Manual refresh function
+    const fetchEvents = () => {
+        mutate() // Revalidate SWR cache
     }
-
-    useEffect(() => {
-        fetchEvents()
-    }, [])
 
     const formatTime = (isoString: string) => {
         return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })

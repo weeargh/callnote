@@ -1,6 +1,14 @@
 
 import { NextResponse } from 'next/server'
 
+/**
+ * @deprecated This route is superseded by native auto-join via POST /api/calendar/auto-join
+ * which uses MeetingBaas createCalendarBot API for proper scheduling.
+ * 
+ * This route is kept for backward compatibility with the "Record This" button
+ * but new implementations should use the native calendar bot API.
+ */
+
 // POST /api/calendar/events/bot - Manually spawn a bot for a specific calendar event
 export async function POST(request: Request) {
     try {

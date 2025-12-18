@@ -43,13 +43,9 @@ export async function GET(request: Request) {
         console.log('📅 Fetching events from', now.toISOString(), 'to', endDate.toISOString())
 
         const eventsUrl = new URL(`https://api.meetingbaas.com/v2/calendars/${calendarId}/events`)
+        // MeetingBaas v2 API uses start_time/end_time for filtering
         eventsUrl.searchParams.set('start_time', now.toISOString())
         eventsUrl.searchParams.set('end_time', endDate.toISOString())
-        // Try alternate parameter names just in case
-        eventsUrl.searchParams.set('start_date_gte', now.toISOString())
-        eventsUrl.searchParams.set('start_date_lte', endDate.toISOString())
-        // Limit set to 50 to ensure we fetch enough future events to include today's events if the user has many future meetings.
-        // MeetingBaas API might return events sorted by date descending (furthest first), so a small limit might miss near-term events.
         eventsUrl.searchParams.set('limit', '50')
 
 

@@ -17,9 +17,30 @@ export function UpcomingEvents() {
     const events = sortEventsAscending(filterEventsNextNDays(rawEvents, 3))
     const error = isError ? 'Failed to load calendar' : null
 
-    // Manual refresh function
-    const fetchEvents = () => {
-        mutate() // Revalidate SWR cache
+    // Manual refresh function - also triggers auto-join for new events
+    const fetchEvents = async () => {
+        // Revalidate SWR cache
+        await mutate()
+
+        // Trigger auto-join for any new events without bots
+        // This ensures new meetings get auto-join enabled
+        try {
+            const res = await fetch('/api/calendar/events')
+            const data = await res.json()
+            if (data.calendar_id) {
+                // Fire and forget - enable auto-join for this calendar
+                fetch('/api/calendar/auto-join', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ calendar_id: data.calendar_id })
+                }).catch(console.error)
+            }
+        } catch (e) {
+            console.log('Auto-join refresh skipped:', e)
+        }
+
+        // Revalidate again to get updated bot_scheduled status
+        setTimeout(() => mutate(), 3000)
     }
 
     const formatTime = (isoString: string) => {

@@ -81,7 +81,7 @@ export async function GET(request: Request) {
             })
         }
 
-        return NextResponse.json({ events })
+        return NextResponse.json({ events, calendar_id: calendarId })
 
     } catch (error) {
         console.error('Calendar Proxy Error:', error)

@@ -53,38 +53,30 @@ export async function GET(request: Request) {
             throw new Error('No refresh token received')
         }
 
-        // Get list of available calendars
-        console.log('📋 Fetching available calendars...')
-        const listRawResponse = await fetch('https://api.meetingbaas.com/v2/calendars/list-raw', {
-            method: 'POST',
+        // Get list of available calendars from Google directly
+        console.log('📋 Fetching available calendars from Google...')
+        const googleCalendarsResponse = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
             headers: {
-                'Content-Type': 'application/json',
-                'x-meeting-baas-api-key': MEETINGBAAS_API_KEY!,
+                'Authorization': `Bearer ${tokens.access_token}`,
             },
-            body: JSON.stringify({
-                calendar_platform: 'google',
-                oauth_client_id: process.env.GOOGLE_OAUTH_CLIENT_ID!,
-                oauth_client_secret: process.env.GOOGLE_OAUTH_CLIENT_SECRET!,
-                oauth_refresh_token: tokens.refresh_token,
-            }),
         })
 
-        if (!listRawResponse.ok) {
-            const errorText = await listRawResponse.text()
-            console.error('Failed to list calendars:', listRawResponse.status, errorText)
+        if (!googleCalendarsResponse.ok) {
+            const errorText = await googleCalendarsResponse.text()
+            console.error('Failed to list calendars from Google:', googleCalendarsResponse.status, errorText)
             throw new Error(`Failed to list calendars: ${errorText}`)
         }
 
-        const { data: calendars } = await listRawResponse.json()
-        console.log(`📅 Found ${calendars?.length || 0} calendars`)
+        const googleCalendars = await googleCalendarsResponse.json()
+        console.log(`📅 Found ${googleCalendars.items?.length || 0} calendars`)
 
-        if (!calendars || calendars.length === 0) {
+        if (!googleCalendars.items || googleCalendars.items.length === 0) {
             throw new Error('No calendars found')
         }
 
         // Use primary calendar (or first one)
-        const primaryCalendar = calendars.find((cal: any) => cal.primary) || calendars[0]
-        console.log('✅ Using calendar:', primaryCalendar.summary)
+        const primaryCalendar = googleCalendars.items.find((cal: any) => cal.primary) || googleCalendars.items[0]
+        console.log('✅ Using calendar:', primaryCalendar.summary, 'ID:', primaryCalendar.id)
 
         // Create calendar connection in MeetingBaas
         console.log('🔗 Creating calendar connection in MeetingBaas...')

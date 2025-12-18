@@ -11,8 +11,8 @@ interface CalendarEvent {
     id: string
     summary: string
     description?: string
-    start: { dateTime: string; timeZone?: string }
-    end: { dateTime: string; timeZone?: string }
+    start?: { dateTime?: string; date?: string; timeZone?: string }
+    end?: { dateTime?: string; date?: string; timeZone?: string }
     location?: string
     hangoutLink?: string
 }
@@ -103,40 +103,50 @@ export function UpcomingEvents() {
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {events.map(event => (
-                            <div key={event.id} className="flex gap-4 p-4 rounded-xl border border-gray-100 bg-white hover:border-indigo-200 transition-colors shadow-sm">
-                                <div className="flex flex-col items-center justify-center bg-indigo-50 text-indigo-700 h-14 w-14 rounded-lg shrink-0">
-                                    <span className="text-xs font-bold uppercase">{new Date(event.start.dateTime).toLocaleDateString([], { month: 'short' })}</span>
-                                    <span className="text-xl font-bold">{new Date(event.start.dateTime).getDate()}</span>
-                                </div>
-                                <div className="flex-1 space-y-1">
-                                    <div className="flex justify-between items-start">
-                                        <h4 className="font-semibold text-gray-900 line-clamp-1">{event.summary || 'Untitled Event'}</h4>
-                                        <Badge variant="secondary" className="text-xs font-normal">
-                                            {formatTime(event.start.dateTime)}
-                                        </Badge>
+                        {events.map((event, i) => {
+                            // Safe date parsing
+                            const startDate = event.start?.dateTime || event.start?.date
+                            if (!startDate) return null // Skip invalid events
+
+                            // Ensure we have a valid date object
+                            const dateObj = new Date(startDate)
+                            if (isNaN(dateObj.getTime())) return null
+
+                            return (
+                                <div key={event.id || i} className="flex gap-4 p-4 rounded-xl border border-gray-100 bg-white hover:border-indigo-200 transition-colors shadow-sm">
+                                    <div className="flex flex-col items-center justify-center bg-indigo-50 text-indigo-700 h-14 w-14 rounded-lg shrink-0">
+                                        <span className="text-xs font-bold uppercase">{dateObj.toLocaleDateString([], { month: 'short' })}</span>
+                                        <span className="text-xl font-bold">{dateObj.getDate()}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                                        <span>{getDayLabel(event.start.dateTime)}</span>
-                                        {event.location && (
-                                            <>
-                                                <span>•</span>
-                                                <span className="flex items-center gap-1 line-clamp-1">
-                                                    <MapPin className="h-3 w-3" /> {event.location}
-                                                </span>
-                                            </>
+                                    <div className="flex-1 space-y-1">
+                                        <div className="flex justify-between items-start">
+                                            <h4 className="font-semibold text-gray-900 line-clamp-1">{event.summary || 'Untitled Event'}</h4>
+                                            <Badge variant="secondary" className="text-xs font-normal">
+                                                {event.start?.dateTime ? formatTime(event.start.dateTime) : 'All Day'}
+                                            </Badge>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                                            <span>{getDayLabel(startDate)}</span>
+                                            {event.location && (
+                                                <>
+                                                    <span>•</span>
+                                                    <span className="flex items-center gap-1 line-clamp-1">
+                                                        <MapPin className="h-3 w-3" /> {event.location}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </div>
+                                        {event.hangoutLink && (
+                                            <div className="pt-2">
+                                                <a href={event.hangoutLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700">
+                                                    <Video className="h-3 w-3" /> Join Meeting
+                                                </a>
+                                            </div>
                                         )}
                                     </div>
-                                    {event.hangoutLink && (
-                                        <div className="pt-2">
-                                            <a href={event.hangoutLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700">
-                                                <Video className="h-3 w-3" /> Join Meeting
-                                            </a>
-                                        </div>
-                                    )}
                                 </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 )}
             </CardContent>

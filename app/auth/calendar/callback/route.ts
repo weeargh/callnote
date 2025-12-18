@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 
+/**
+ * Handles the Google OAuth callback.
+ * Flow:
+ * 1. Exchange 'code' for Google Access/Refresh Tokens.
+ * 2. Fetch user's Google Calendars to identify the 'primary' calendar ID.
+ * 3. Create a connection in MeetingBaas using the refresh token and primary calendar ID.
+ * 
+ * This enables MeetingBaas to read events and auto-join meetings.
+ */
+
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
 const MEETINGBAAS_API_KEY = process.env.MEETINGBAAS_API_KEY
 

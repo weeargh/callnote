@@ -55,7 +55,11 @@ async function checkMeetingBaas() {
                 const eventsUrl = new URL(`https://api.meetingbaas.com/v2/calendars/${calId}/events`);
                 eventsUrl.searchParams.set('start_time', now.toISOString());
                 eventsUrl.searchParams.set('end_time', endDate.toISOString());
-                eventsUrl.searchParams.set('limit', '5');
+                eventsUrl.searchParams.set('start_date_gte', now.toISOString());
+                eventsUrl.searchParams.set('start_date_lte', endDate.toISOString());
+                eventsUrl.searchParams.set('limit', '50');
+
+                console.log('🔗 Fetching with params:', eventsUrl.search);
 
                 const eventRes = await fetch(eventsUrl.toString(), {
                     headers: { 'x-meeting-baas-api-key': apiKey }
@@ -63,9 +67,13 @@ async function checkMeetingBaas() {
 
                 if (eventRes.ok) {
                     const eventData = await eventRes.json();
+                    const events = eventData.data || eventData.events || eventData;
                     console.log('✅ Events Fetch Successful!');
-                    console.log('Events found:', (eventData.data || eventData).length);
-                    // console.log('First event:', eventData.data?.[0] || 'None');
+                    console.log('Events found:', events.length);
+                    events.forEach((e: any, i: number) => {
+                        const start = e.start_time || e.start?.dateTime || e.start?.date;
+                        console.log(`[${i}] ${e.title || e.summary} @ ${start}`);
+                    });
                 } else {
                     console.error('❌ Events Fetch Failed');
                     console.error('Status:', eventRes.status);

@@ -48,6 +48,8 @@ export async function GET(request: Request) {
         // Try alternate parameter names just in case
         eventsUrl.searchParams.set('start_date_gte', now.toISOString())
         eventsUrl.searchParams.set('start_date_lte', endDate.toISOString())
+        // Limit set to 50 to ensure we fetch enough future events to include today's events if the user has many future meetings.
+        // MeetingBaas API might return events sorted by date descending (furthest first), so a small limit might miss near-term events.
         eventsUrl.searchParams.set('limit', '50')
 
 
@@ -55,6 +57,8 @@ export async function GET(request: Request) {
 
         const eventsRes = await fetch(eventsUrl.toString(), {
             headers: { 'x-meeting-baas-api-key': MEETINGBAAS_API_KEY },
+            // Disable caching to ensure we always get the latest scheduled meetings,
+            // especially important for "just scheduled" meetings.
             cache: 'no-store'
         })
 
@@ -70,7 +74,9 @@ export async function GET(request: Request) {
         let events = eventsData.data || eventsData || []
         console.log(`✅ Found ${events?.length || 0} events`)
 
-        // Sort events by start time ascending (since API returns distinct order sometimes)
+        // Sort events by start time ascending (Nearest First).
+        // The API may return them in descending order (Furthest First), so we must sort them
+        // to correctly display "Upcoming" events in the UI.
         if (Array.isArray(events)) {
             events.sort((a: any, b: any) => {
                 const dateA = new Date(a.start_time || a.start?.dateTime || a.start?.date || 0)

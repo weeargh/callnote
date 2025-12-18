@@ -7,23 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ConnectCalendarButton } from "@/components/connect-calendar-button"
 
-interface CalendarEvent {
-    // Google Calendar / Standard Structure
-    id: string
-    summary?: string
-    description?: string
-    start?: { dateTime?: string; date?: string; timeZone?: string }
-    end?: { dateTime?: string; date?: string; timeZone?: string }
-    location?: string
-    hangoutLink?: string
-
-    // MeetingBaas Structure
-    event_id?: string
-    title?: string
-    start_time?: string
-    end_time?: string
-    meeting_url?: string
-}
+import { filterEventsNextNDays, sortEventsAscending, CalendarEvent } from '@/utils/calendar-utils'
 
 export function UpcomingEvents() {
     const [events, setEvents] = useState<CalendarEvent[]>([])
@@ -41,19 +25,9 @@ export function UpcomingEvents() {
                 throw new Error(data.error || 'Failed to fetch events')
             }
 
-            // Filter for next 3 days locally to be safe
+            // Filter logic moved to utility for better testability and maintainability
             const allEvents = data.events || []
-            const now = new Date()
-            const threeDaysFromNow = new Date()
-            threeDaysFromNow.setDate(now.getDate() + 3)
-            threeDaysFromNow.setHours(23, 59, 59, 999) // End of that day
-
-            const filteredEvents = allEvents.filter((event: CalendarEvent) => {
-                const startDateStr = event.start_time || event.start?.dateTime || event.start?.date
-                if (!startDateStr) return false
-                const eventDate = new Date(startDateStr)
-                return eventDate >= now && eventDate <= threeDaysFromNow
-            })
+            const filteredEvents = sortEventsAscending(filterEventsNextNDays(allEvents, 3))
 
             setEvents(filteredEvents)
         } catch (err) {

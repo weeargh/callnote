@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Clock, Users, ChevronRight, Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { useMeetings } from "@/hooks/use-meetings"
 
 interface MeetingListItem {
   id: string
@@ -64,30 +64,10 @@ function formatDuration(seconds: number | null) {
 }
 
 export function RecentRecordings() {
-  const [recordings, setRecordings] = useState<MeetingListItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  // Use SWR hook for cached data fetching
+  const { meetings: recordings, isLoading, isError } = useMeetings(20)
 
-  useEffect(() => {
-    async function fetchMeetings() {
-      try {
-        const response = await fetch('/api/meetings?limit=20')
-        if (!response.ok) {
-          throw new Error('Failed to fetch meetings')
-        }
-        const data = await response.json()
-        setRecordings(data)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchMeetings()
-  }, [])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div>
         <h2 className="mb-6 text-xl font-semibold text-foreground">Recent Recordings</h2>
@@ -98,13 +78,13 @@ export function RecentRecordings() {
     )
   }
 
-  if (error) {
+  if (isError) {
     return (
       <div>
         <h2 className="mb-6 text-xl font-semibold text-foreground">Recent Recordings</h2>
         <div className="flex min-h-[200px] flex-col items-center justify-center gap-3 rounded-lg border border-border p-8 text-center">
           <p className="text-muted-foreground">Failed to load meetings</p>
-          <p className="text-sm text-muted-foreground">{error}</p>
+          <p className="text-sm text-muted-foreground">Please try refreshing the page</p>
         </div>
       </div>
     )
@@ -113,7 +93,7 @@ export function RecentRecordings() {
   return (
     <div>
       <h2 className="mb-6 text-xl font-semibold text-foreground">Recent Recordings</h2>
-      
+
       {recordings.length === 0 ? (
         <div className="flex min-h-[200px] flex-col items-center justify-center gap-3 rounded-lg border border-border p-8 text-center">
           <p className="text-muted-foreground">No recordings yet</p>

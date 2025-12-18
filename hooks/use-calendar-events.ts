@@ -17,9 +17,9 @@ export function useCalendarEvents() {
         fetcher,
         {
             revalidateOnFocus: false,
-            revalidateOnReconnect: true,
-            dedupingInterval: 60000, // 1 minute - calendar doesn't change often
-            focusThrottleInterval: 120000, // 2 minutes
+            revalidateOnReconnect: false,
+            dedupingInterval: 1800000, // 30 minutes
+            focusThrottleInterval: 1800000, // 30 minutes
             errorRetryCount: 2,
         }
     )

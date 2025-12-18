@@ -47,9 +47,9 @@ export function useMeetings(limit: number = 20) {
         fetcher,
         {
             revalidateOnFocus: false,
-            revalidateOnReconnect: true,
-            dedupingInterval: 30000, // 30 seconds
-            focusThrottleInterval: 60000, // 1 minute
+            revalidateOnReconnect: false,
+            dedupingInterval: 1800000, // 30 minutes
+            focusThrottleInterval: 1800000, // 30 minutes
         }
     )
 
@@ -91,7 +91,8 @@ export function useMeeting(id: string | null) {
         },
         {
             revalidateOnFocus: false,
-            dedupingInterval: 60000, // 1 minute
+            revalidateOnReconnect: false,
+            dedupingInterval: 1800000, // 30 minutes
         }
     )
 

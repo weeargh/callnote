@@ -112,7 +112,19 @@ export async function GET(request: Request) {
         }
 
         const { data: calendarConnection } = await createCalendarResponse.json()
-        console.log('✅ Calendar connected! ID:', calendarConnection.calendar_id || calendarConnection.id)
+        const calendarId = calendarConnection.calendar_id || calendarConnection.id
+        console.log('✅ Calendar connected! ID:', calendarId)
+
+        // Trigger native auto-join for all events (fire and forget)
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+        fetch(`${baseUrl}/api/calendar/auto-join`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ calendar_id: calendarId })
+        }).then(res => {
+            if (res.ok) console.log('🤖 Auto-join enabled for all calendar events')
+            else console.error('⚠️ Auto-join setup failed')
+        }).catch(err => console.error('Auto-join error:', err))
 
         // Redirect back to dashboard with success
         return NextResponse.redirect(`${origin}/?calendar_connected=true`)

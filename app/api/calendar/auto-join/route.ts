@@ -92,6 +92,9 @@ export async function POST(request: Request) {
                 console.error(`❌ Error for series ${series_id}:`, err)
                 results.push({ series_id, success: false, error: String(err) })
             }
+
+            // Rate limit: MeetingBaas allows 1 request per second
+            await new Promise(resolve => setTimeout(resolve, 1500))
         }
 
         const successCount = results.filter(r => r.success).length

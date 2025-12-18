@@ -65,10 +65,13 @@ export async function POST(request: Request) {
                     entry_message: 'Mekari Callnote is joining to record this meeting.',
                     all_occurrences: true,
                     // Enable transcription with speaker diarization
+                    transcription_enabled: true,
                     transcription_config: {
                         provider: 'gladia',
                         diarization: true
-                    }
+                    },
+                    // Webhook URL for receiving bot events
+                    webhook_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://callnote.vercel.app'}/api/webhooks/meetingbaas`
                 }
 
                 const res = await fetch(createBotUrl, {

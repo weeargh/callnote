@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+
 const MEETINGBAAS_API_KEY = process.env.MEETINGBAAS_API_KEY
 
 export async function GET(request: Request) {
@@ -52,7 +54,8 @@ export async function GET(request: Request) {
         console.log('🔗 Events URL:', eventsUrl.toString())
 
         const eventsRes = await fetch(eventsUrl.toString(), {
-            headers: { 'x-meeting-baas-api-key': MEETINGBAAS_API_KEY }
+            headers: { 'x-meeting-baas-api-key': MEETINGBAAS_API_KEY },
+            cache: 'no-store'
         })
 
         if (!eventsRes.ok) {

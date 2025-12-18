@@ -34,7 +34,7 @@ export function UpcomingEvents() {
         setLoading(true)
         setError(null)
         try {
-            const res = await fetch('/api/calendar/events')
+            const res = await fetch(`/api/calendar/events?t=${new Date().getTime()}`)
             const data = await res.json()
 
             if (!res.ok || data.error) {

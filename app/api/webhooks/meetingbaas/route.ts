@@ -60,6 +60,7 @@ export async function POST(request: Request) {
         break
 
       case 'event.added':
+      case 'event.updated':
         await handleCalendarEventAdded(event.data)
         break
 
@@ -76,7 +77,7 @@ export async function POST(request: Request) {
 
 async function handleCalendarEventAdded(data: any) {
   try {
-    console.log('📅 New Calendar Event Detected:', data.summary || data.title)
+    console.log('📅 Calendar Event Payload:', data.summary || data.title)
 
     // Extract meeting URL and Time
     const meetingUrl = data.meeting_url || data.hangoutLink || data.location
@@ -87,6 +88,10 @@ async function handleCalendarEventAdded(data: any) {
       console.log('⚠️ No meeting URL found in event, skipping auto-join.')
       return
     }
+
+    // For updates, we might want to check if it's already scheduled?
+    // Our /api/bots route handles deduplication via `deduplication_id: meeting_url`.
+    // So safe to retry.
 
     console.log('🤖 Auto-Scheduling Bot for:', meetingUrl, 'at', startTime)
 

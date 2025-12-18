@@ -40,6 +40,19 @@ export function filterEventsNextNDays(events: CalendarEvent[], days: number = 3)
         // Ensure valid date
         if (isNaN(eventDate.getTime())) return false
 
+        // Check if event is ongoing or future
+        // If end_time exists, we check if end_time > now (event hasn't finished)
+        // If no end_time, we fallback to start_time >= now (future events)
+        const endTimeStr = event.end_time || event.end?.dateTime || event.end?.date
+
+        if (endTimeStr) {
+            const endDate = new Date(endTimeStr)
+            if (!isNaN(endDate.getTime())) {
+                return endDate > now && new Date(startDateStr) <= futureDate
+            }
+        }
+
+        // Fallback for events without clear end time
         return eventDate >= now && eventDate <= futureDate
     })
 }

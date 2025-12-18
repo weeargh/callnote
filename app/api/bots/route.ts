@@ -33,13 +33,15 @@ export async function POST(request: Request) {
     const requestBody: Record<string, unknown> = {
       meeting_url,
       bot_name,
+      deduplication_id: meeting_url, // Use meeting URL as deduplication key
+      allow_multiple_bots: false, // Prevent multiple bots in the same meeting
       recording_mode: 'speaker_view',
       entry_message: 'Mekari Callnote is joining to record this meeting.',
       reserved: false,
       automatic_leave: {
-        waiting_room_timeout: 600,
-        noone_joined_timeout: 300,
-        everyone_left_timeout: 10,
+        waiting_room_timeout: 300, // 5 minutes waiting room
+        noone_joined_timeout: 300, // 5 minutes no one joined
+        everyone_left_timeout: 60, // 1 minute after everyone leaves (slightly increased from 10s to avoid false positives)
       },
     }
 
